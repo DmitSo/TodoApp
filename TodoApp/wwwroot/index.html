@@ -1,0 +1,86 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>To-do</title>
+    <style>
+        body{
+           background-color:darkgray;
+        }
+        input[type='submit'], button, [aria-label] {
+            cursor: pointer;
+        }
+        #spoiler {
+            display: none;
+        }
+
+        table {
+            font-family: 'Times New Roman', sans-serif;
+            border: 1px solid;
+            border-collapse: collapse;
+            width:500px;
+            
+        }
+        th {
+            background-color:thistle;
+            color: black;
+        }
+        td {
+            border: 1px solid;
+            padding: 5px;
+        }
+        #main{
+           background-color: white;
+           width:500px;
+           height:auto;
+           margin-left:30%;
+           border :solid 0px 1px 0px 0px black;
+          
+        }
+        #some-form {
+            border: solid 1px  black;
+            height:30px;
+            padding-left:10px;
+            padding-top:5px;
+        }
+
+        #add-name{
+            width:390px;
+        }
+    </style>
+</head>
+<body>
+   
+    <div id="main">
+        <form id="some-form" action="javascript:void(0);" method="POST" onsubmit="addItem()">
+            <input type="text" id="add-name" placeholder="Enter your TODO">
+            <input type="submit" value="Add TODO">
+        </form>
+
+        <div id="spoiler">
+            <h3>Editing task</h3>
+            <form class="my-form">
+                <input type="hidden" id="edit-id">
+                <input type="text" id="edit-name">
+                <input type="checkbox" id="edit-isComplete">
+                <input type="submit" value="Edit">
+                <a onclick="closeInput()" aria-label="Close"></a>
+            </form>
+        </div>
+       
+        <table>
+            <tr>
+                <th>Status</th>
+                <th>Tasks</th>
+                <th>Edit</th>
+                <th>Delete</th>
+            </tr>
+            <tbody id="todoNotes"></tbody>
+        </table>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js"
+            integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
+            crossorigin="anonymous"></script>
+    <script src="site.js"></script>
+</body>
+</html>

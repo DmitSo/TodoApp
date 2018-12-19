@@ -2,43 +2,130 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using TodoApp.Models;
 
 namespace TodoApp.Controllers
 {
-    [Route("api/[controller]")]
+    [Produces("application/json")]
+    [Route("api/values")]
     public class ValuesController : Controller
     {
-        // GET api/values
+        private readonly TodoAppContext _context;
+
+        public ValuesController(TodoAppContext context)
+        {
+            _context = context;
+
+            if (_context.TodoNotes.Count() == 0)
+            {
+                _context.TodoNotes.Add(new TodoNote { Name = "Initial" });
+                _context.SaveChanges();
+            }
+        }
+
+        // GET: api/TodoNotes
         [HttpGet]
-        public IEnumerable<string> Get()
+        public IEnumerable<TodoNote> GetTodoNote()
         {
-            return new string[] { "value1", "value2" };
+            return _context.TodoNotes;
         }
 
-        // GET api/values/5
+        // GET: api/TodoNotes/5
         [HttpGet("{id}")]
-        public string Get(int id)
+        public async Task<IActionResult> GetTodoNote([FromRoute] int id)
         {
-            return "value";
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var todoNote = await _context.TodoNotes.SingleOrDefaultAsync(m => m.Id == id);
+
+            if (todoNote == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(todoNote);
         }
 
-        // POST api/values
-        [HttpPost]
-        public void Post([FromBody]string value)
-        {
-        }
-
-        // PUT api/values/5
+        // PUT: api/TodoNotes/5
         [HttpPut("{id}")]
-        public void Put(int id, [FromBody]string value)
+        public async Task<IActionResult> PutTodoNote([FromRoute] int id, [FromBody] TodoNote todoNote)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            if (id != todoNote.Id)
+            {
+                return BadRequest();
+            }
+
+            _context.Entry(todoNote).State = EntityState.Modified;
+
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!TodoNoteExists(id))
+                {
+                    return NotFound();
+                }
+                else
+                {
+                    throw;
+                }
+            }
+
+            return NoContent();
         }
 
-        // DELETE api/values/5
-        [HttpDelete("{id}")]
-        public void Delete(int id)
+        // POST: api/TodoNotes
+        [HttpPost]
+        public async Task<IActionResult> PostTodoNote([FromBody] TodoNote todoNote)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            _context.TodoNotes.Add(todoNote);
+            await _context.SaveChangesAsync();
+
+            return CreatedAtAction("GetTodoNote", new { id = todoNote.Id }, todoNote);
+        }
+
+        // DELETE: api/TodoNotes/5
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteTodoNote([FromRoute] int id)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var todoNote = await _context.TodoNotes.SingleOrDefaultAsync(m => m.Id == id);
+            if (todoNote == null)
+            {
+                return NotFound();
+            }
+
+            _context.TodoNotes.Remove(todoNote);
+            await _context.SaveChangesAsync();
+
+            return Ok(todoNote);
+        }
+
+        private bool TodoNoteExists(int id)
+        {
+            return _context.TodoNotes.Any(e => e.Id == id);
         }
     }
 }
