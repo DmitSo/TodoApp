@@ -1,20 +1,6 @@
 ﻿const uri = 'api/values';
 let todoNotes = null;
 
-function getCount(data) {
-    const el = $('#counter');
-
-    let name = 'to-do';
-    if (data) {
-        if (data > 1) {
-            name = 'to-dos';
-        }
-        el.text(data + ' ' + name);
-    } else {
-        el.html('No ' + name);
-    }
-}
-
 $(document).ready(function () {
     getData();
 });
@@ -54,7 +40,7 @@ function addItem() {
         contentType: 'application/json',
         data: JSON.stringify(item),
         error: function (jqXHR, textStatus, errorThrown) {
-            alert('here');
+            alert('Error has occured : ' + textStatus + '; ' + errorThrown);
         },
         success: function (result) {
             getData();
@@ -81,7 +67,8 @@ function editItem(id) {
             $('#edit-isComplete')[0].checked = item.isComplete;
         }
     });
-    $('#spoiler').css({ 'display': 'block' });
+
+    showSpoiler();
 }
 
 $('.my-form').on('submit', function () {
@@ -102,10 +89,14 @@ $('.my-form').on('submit', function () {
         }
     });
 
-    closeInput();
+    hideSpoiler();
     return false;
 });
 
-function closeInput() {
+function showSpoiler() {
+    $('#spoiler').css({ 'display': 'block' });
+}
+
+function hideSpoiler() {
     $('#spoiler').css({ 'display': 'none' });
 }
